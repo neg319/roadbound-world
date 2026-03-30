@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Roadbound World</name>
+  <author>OpenAI for Johnny Berry</author>
+  <packageId>vyberware.roadboundworld</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</downloadUrl>
+    </li>
+  </modDependencies>
+  <description>Prototype source package for a RimWorld 1.6 exploration mod that adds edge to edge road travel, road POIs, periodic travelers crossing the map, persistent hostiles across connected tiles, and a Morrowind inspired replacement for the pawn gear and inventory tab with tabs, a paper doll, and a tiled pack grid.
+
+Important: this package is laid out as a proper RimWorld mod project, but the current build environment could not compile the C# assembly. The Source folder is included, but the 1.6/Assemblies folder does not contain a built DLL yet.</description>
+</ModMetaData>

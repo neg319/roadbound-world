@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RBW_ModName>Roadbound World</RBW_ModName>
+  <RBW_ShowPrompt>Show next tile prompt</RBW_ShowPrompt>
+  <RBW_MorrowindInventory>Enable Morrowind style inventory UI</RBW_MorrowindInventory>
+  <RBW_MapSize>Transit map size</RBW_MapSize>
+  <RBW_RoadHalfWidth>Road half width</RBW_RoadHalfWidth>
+  <RBW_PoiCount>POIs per road map</RBW_PoiCount>
+  <RBW_TravelerDays>Traveler spawn interval in days</RBW_TravelerDays>
+  <RBW_PersistDays>Hostile persistence window in days</RBW_PersistDays>
+  <RBW_ConfirmTitle>Continue down the road?</RBW_ConfirmTitle>
+  <RBW_ConfirmBody>You are about to move into the connected neighboring tile.
+
+Destination: {0}</RBW_ConfirmBody>
+  <RBW_ConfirmAccept>Enter next tile</RBW_ConfirmAccept>
+  <RBW_ConfirmCancel>Stay here</RBW_ConfirmCancel>
+</LanguageData>
