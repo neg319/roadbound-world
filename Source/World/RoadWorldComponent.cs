@@ -4,12 +4,12 @@ using Verse;
 
 namespace RoadboundWorld.World;
 
-public sealed class RoadWorldComponent : WorldComponent
+public sealed class RoadWorldComponent : global::RimWorld.Planet.WorldComponent
 {
     public RoadTransitionRequest PendingTransition;
     public List<PersistentHostileGroup> persistentHostiles = new();
 
-    public RoadWorldComponent(World world) : base(world)
+    public RoadWorldComponent(global::RimWorld.Planet.World world) : base(world)
     {
     }
 
@@ -41,12 +41,12 @@ public sealed class RoadWorldComponent : WorldComponent
         persistentHostiles.Add(group);
     }
 
-    public List<PersistentHostileRecord> ConsumeHostiles(int tile, Direction8Way entryDirection)
+    public List<PersistentHostileRecord> ConsumeHostiles(int tile, Rot4 entryDirection)
     {
         int now = Find.TickManager.TicksGame;
         persistentHostiles.RemoveAll(g => g.expiresAtTick <= now);
 
-        var match = persistentHostiles.FirstOrDefault(g => g.tile == tile && g.entryDirection == entryDirection);
+        var match = persistentHostiles.FirstOrDefault(g => g.tile == tile && g.entryDirection == entryDirection.AsInt);
         if (match == null)
         {
             return new List<PersistentHostileRecord>();
