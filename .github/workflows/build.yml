@@ -1,0 +1,48 @@
+name: build-roadboundworld
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore packages
+        run: dotnet restore Source/RoadboundWorld.csproj
+
+      - name: Build mod assembly
+        run: dotnet build Source/RoadboundWorld.csproj -c Release --no-restore
+
+      - name: Create distributable mod folder
+        shell: pwsh
+        run: |
+          $root = Get-Location
+          $stage = Join-Path $root 'artifact/Roadbound World'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item -Path About -Destination $stage -Recurse -Force
+          Copy-Item -Path LoadFolders.xml -Destination $stage -Force
+          if (Test-Path 'README.md') { Copy-Item -Path README.md -Destination $stage -Force }
+          if (Test-Path '1.6') { Copy-Item -Path '1.6' -Destination $stage -Recurse -Force }
+          if (Test-Path 'Textures') { Copy-Item -Path 'Textures' -Destination $stage -Recurse -Force }
+          if (Test-Path 'Languages') { Copy-Item -Path 'Languages' -Destination $stage -Recurse -Force }
+          if (Test-Path 'Defs') { Copy-Item -Path 'Defs' -Destination $stage -Recurse -Force }
+          if (Test-Path 'Source') { Copy-Item -Path 'Source' -Destination $stage -Recurse -Force }
+          Compress-Archive -Path $stage -DestinationPath (Join-Path $root 'artifact/RoadboundWorld_v1.6_build.zip') -Force
+
+      - name: Upload built mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: RoadboundWorld_v1.6_build
+          path: artifact/RoadboundWorld_v1.6_build.zip
