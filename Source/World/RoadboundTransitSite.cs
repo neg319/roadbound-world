@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -13,12 +12,6 @@ public class RoadboundTransitSite : Camp
 
     public override void Notify_MyMapRemoved(Map map)
     {
-        List<MapComponent> comps = map.components;
-        for (int i = 0; i < comps.Count; i++)
-        {
-            comps[i].FinalizeLoading();
-        }
-
         base.Notify_MyMapRemoved(map);
     }
 

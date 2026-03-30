@@ -55,10 +55,9 @@ public sealed class RoadboundMapComponent : MapComponent
 
         var worldState = Find.World.GetComponent<RoadWorldComponent>();
         var pending = worldState.ConsumePendingTransitionForTile(map.Tile);
-        bool tileHasWorldRoad = Find.WorldGrid[map.Tile].Roads != null && Find.WorldGrid[map.Tile].Roads.Count > 0;
         bool transitSite = map.Parent is RoadboundTransitSite;
 
-        if (!tileHasWorldRoad && !transitSite && pending == null)
+        if (!transitSite && pending == null)
         {
             return;
         }

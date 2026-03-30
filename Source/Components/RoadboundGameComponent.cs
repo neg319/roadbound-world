@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -98,7 +99,7 @@ public sealed class RoadboundGameComponent : GameComponent
             sendMessage: false);
 
         IntVec3 cameraCell;
-        Predicate<IntVec3> validator = MapEdgeUtility.GetEntryValidator(targetMap, leadPawn.Position, previousMap.Size, out cameraCell);
+        System.Predicate<IntVec3> validator = MapEdgeUtility.GetEntryValidator(targetMap, leadPawn.Position, previousMap.Size, out cameraCell);
         CaravanEnterMapUtility.Enter(caravan, targetMap, CaravanEnterMode.Edge, extraCellValidator: validator, draftColonists: true);
         Current.Game.CurrentMap = targetMap;
         Find.CameraDriver.JumpToCurrentMapLoc(cameraCell);

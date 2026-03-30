@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -47,13 +48,7 @@ public static class MapEdgeUtility
 
     public static bool IsWalkableTile(int tile)
     {
-        if (tile < 0)
-        {
-            return false;
-        }
-
-        var biome = Find.WorldGrid[tile].biome;
-        return biome != BiomeDefOf.Ocean && biome != BiomeDefOf.Lake;
+        return tile >= 0;
     }
 
     public static Predicate<IntVec3> GetEntryValidator(Map targetMap, IntVec3 previousCell, IntVec3 previousSize, out IntVec3 cameraCell)
@@ -76,17 +71,12 @@ public static class MapEdgeUtility
 
     public static string DescribeTile(int tile)
     {
-        string text = $"Biome: {Find.WorldGrid[tile].biome.LabelCap}\n{Find.WorldGrid[tile].hilliness.GetLabelCap()}";
+        string text = $"Tile {tile}";
 
-        var obj = Find.WorldObjects.WorldObjectAt(tile);
+        var obj = Find.WorldObjects.AllWorldObjects.FirstOrDefault(w => w.Tile == tile);
         if (obj != null)
         {
             text += $"\n{obj.LabelCap}";
-        }
-
-        if (Find.WorldGrid[tile].Roads != null && Find.WorldGrid[tile].Roads.Count > 0)
-        {
-            text += $"\nRoad: {Find.WorldGrid[tile].Roads[0].road.LabelCap}";
         }
 
         return text;

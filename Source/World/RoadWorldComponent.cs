@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using RimWorld;
 using Verse;
 
 namespace RoadboundWorld.World;
 
-public sealed class RoadWorldComponent : global::RimWorld.Planet.WorldComponent
+public sealed class RoadWorldComponent : WorldComponent
 {
     public RoadTransitionRequest PendingTransition;
     public List<PersistentHostileGroup> persistentHostiles = new();
 
-    public RoadWorldComponent(global::RimWorld.Planet.World world) : base(world)
+    public RoadWorldComponent(World world) : base(world)
     {
     }
 
