@@ -1,4 +1,4 @@
-This package contains the full Morrowind Inventory Logistics source layout plus the GitHub Actions workflow that builds the RimWorld 1.6 mod.
+This package contains the full Morrowind Menus & Trading source layout plus the GitHub Actions workflow that builds the RimWorld 1.6 mod.
 
 Major change in this pass:
 - removed the road travel systems and transit world object content

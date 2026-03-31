@@ -4,6 +4,7 @@ using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using RoadboundWorld.Components;
 
 namespace RoadboundWorld.Systems;
 
@@ -118,7 +119,7 @@ public static class PersonalInventoryStockpileSystem
             List<Thing> snapshot = donor.inventory?.innerContainer?.ToList() ?? new List<Thing>();
             foreach (Thing thing in snapshot)
             {
-                InventoryTraderRole preferredRole = RoleForThing(thing);
+                RoadboundWorld.Components.InventoryTraderRole preferredRole = RoleForThing(thing);
                 if (preferredRole == InventoryTraderRole.None)
                 {
                     continue;
@@ -151,20 +152,20 @@ public static class PersonalInventoryStockpileSystem
         }
     }
 
-    private static int SuggestedTransferCount(Pawn donor, Thing thing, InventoryTraderRole preferredRole)
+    private static int SuggestedTransferCount(Pawn donor, Thing thing, RoadboundWorld.Components.InventoryTraderRole preferredRole)
     {
         if (thing == null)
         {
             return 0;
         }
 
-        if (preferredRole == InventoryTraderRole.Food)
+        if (preferredRole == RoadboundWorld.Components.InventoryTraderRole.Food)
         {
             int foodStacks = CountFoodItems(donor);
             return foodStacks > 1 ? 1 : 0;
         }
 
-        if (preferredRole == InventoryTraderRole.Weapons)
+        if (preferredRole == RoadboundWorld.Components.InventoryTraderRole.Weapons)
         {
             bool isEquipped = donor.equipment?.Primary == thing;
             return !isEquipped ? 1 : 0;

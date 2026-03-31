@@ -1,4 +1,4 @@
-# Morrowind Inventory Logistics
+# Morrowind Menus & Trading
 
 This RimWorld 1.6 mod project is now focused entirely on two systems:
 
