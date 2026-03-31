@@ -7,31 +7,23 @@ public static class MorrowindWindowSkin
 {
     public static void DrawWindow(Rect rect)
     {
-        DrawTiledBackground(rect);
+        DrawDarkFill(rect, MorrowindUiResources.BackgroundTint);
         DrawOuterFrame(rect);
     }
 
     public static void DrawPanel(Rect rect, float inset = 6f, bool darkFill = true)
     {
-        DrawTiledBackground(rect);
-        if (darkFill)
-        {
-            GUI.color = MorrowindUiResources.PanelShade;
-            GUI.DrawTexture(rect.ContractedBy(2f), BaseContent.WhiteTex);
-            GUI.color = Color.white;
-        }
-
+        DrawDarkFill(rect, MorrowindUiResources.PanelShade);
         DrawSimpleFrame(rect);
-        if (inset > 0f)
+        if (darkFill && inset > 0f)
         {
-            GUI.color = MorrowindUiResources.PanelShadeSoft;
-            GUI.DrawTexture(rect.ContractedBy(inset), BaseContent.WhiteTex);
-            GUI.color = Color.white;
+            DrawDarkFill(rect.ContractedBy(inset), MorrowindUiResources.PanelShadeSoft);
         }
     }
 
     public static void DrawSlot(Rect rect, bool selected)
     {
+        DrawDarkFill(rect, MorrowindUiResources.SlotShade);
         GUI.color = Color.white;
         GUI.DrawTexture(rect, MorrowindUiResources.SlotFrame, ScaleMode.StretchToFill, true);
         if (selected)
@@ -55,16 +47,15 @@ public static class MorrowindWindowSkin
 
     public static void DrawInsetFill(Rect rect)
     {
-        GUI.color = MorrowindUiResources.PanelShade;
-        GUI.DrawTexture(rect, BaseContent.WhiteTex);
-        GUI.color = Color.white;
+        DrawDarkFill(rect, MorrowindUiResources.PanelShade);
     }
 
-    private static void DrawTiledBackground(Rect rect)
+    private static void DrawDarkFill(Rect rect, Color color)
     {
-        GUI.color = MorrowindUiResources.BackgroundTint;
-        GUI.DrawTextureWithTexCoords(rect, MorrowindUiResources.Background, new Rect(0f, 0f, rect.width / 128f, rect.height / 128f));
-        GUI.color = Color.white;
+        Color old = GUI.color;
+        GUI.color = color;
+        GUI.DrawTexture(rect, BaseContent.WhiteTex);
+        GUI.color = old;
     }
 
     private static void DrawOuterFrame(Rect rect)

@@ -1,72 +1,55 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using RimWorld;
-using RimWorld.Planet;
 using RoadboundWorld.Systems;
-using RoadboundWorld.Utility;
-using RoadboundWorld.World;
 using Verse;
 
 namespace RoadboundWorld.Components;
 
+public enum InventoryTraderRole
+{
+    Auto,
+    None,
+    Food,
+    Weapons,
+    Medicine,
+    Apparel,
+    Resources,
+    Misc,
+}
+
 public sealed class RoadboundGameComponent : GameComponent
 {
-    private const int CheckInterval = 64;
-    private const int StockpileCheckInterval = 180;
-    private int lastCheckTick;
+    private const int StockpileCheckInterval = 90;
     private int lastStockpileTick;
-    private IntVec3 lastTransitionCell = IntVec3.Invalid;
+    private List<int> roleOverrideKeys = new();
+    private List<int> roleOverrideValues = new();
+    private Dictionary<int, InventoryTraderRole> roleOverrides = new();
 
     public RoadboundGameComponent(Game game)
     {
     }
 
-    public override void GameComponentTick()
+    public override void ExposeData()
     {
-        TryHandlePersonalStockpiles();
+        roleOverrideKeys = roleOverrides.Keys.ToList();
+        roleOverrideValues = roleOverrides.Values.Select(v => (int)v).ToList();
+        Scribe_Collections.Look(ref roleOverrideKeys, nameof(roleOverrideKeys), LookMode.Value);
+        Scribe_Collections.Look(ref roleOverrideValues, nameof(roleOverrideValues), LookMode.Value);
 
-        if (Current.Game?.CurrentMap == null || !WorldRendererUtility.DrawingMap)
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            return;
-        }
-
-        if (Find.TickManager.TicksGame - lastCheckTick < CheckInterval)
-        {
-            return;
-        }
-
-        lastCheckTick = Find.TickManager.TicksGame;
-        Pawn pawn = Find.Selector.SelectedPawns.FirstOrDefault(p => p.Drafted && p.IsColonistPlayerControlled);
-        if (pawn == null || pawn.Map == null || !MapEdgeUtility.IsOnEdge(pawn.Position, pawn.Map) || pawn.Position == lastTransitionCell)
-        {
-            return;
-        }
-
-        Direction8Way dir = MapEdgeUtility.DirectionFromCenter(pawn.Map, pawn.Position);
-        int targetTile = ResolveTargetTile(pawn.Map, dir);
-        if (!MapEdgeUtility.IsWalkableTile(targetTile))
-        {
-            return;
-        }
-
-        if (RoadboundWorldMod.Settings.showPrompt)
-        {
-            string body = "RBW_ConfirmBody".Translate(MapEdgeUtility.DescribeTile(targetTile));
-            Find.WindowStack.Add(new Dialog_MessageBox(
-                body,
-                "RBW_ConfirmAccept".Translate(),
-                () => BeginTransition(pawn, targetTile, dir),
-                "RBW_ConfirmCancel".Translate(),
-                () => { lastCheckTick = Find.TickManager.TicksGame + CheckInterval; }));
-        }
-        else
-        {
-            BeginTransition(pawn, targetTile, dir);
+            roleOverrides = new Dictionary<int, InventoryTraderRole>();
+            int count = roleOverrideKeys?.Count ?? 0;
+            for (int i = 0; i < count; i++)
+            {
+                int key = roleOverrideKeys[i];
+                int raw = i < roleOverrideValues.Count ? roleOverrideValues[i] : 0;
+                roleOverrides[key] = (InventoryTraderRole)raw;
+            }
         }
     }
 
-    private void TryHandlePersonalStockpiles()
+    public override void GameComponentTick()
     {
         if (!RoadboundWorldMod.Settings.personalStockpileMode || Find.TickManager.TicksGame - lastStockpileTick < StockpileCheckInterval)
         {
@@ -76,65 +59,72 @@ public sealed class RoadboundGameComponent : GameComponent
         lastStockpileTick = Find.TickManager.TicksGame;
         foreach (Map map in Find.Maps)
         {
-            foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
-            {
-                PersonalInventoryStockpileSystem.TryAutoStashNearbyHaulables(pawn);
-            }
+            PersonalInventoryStockpileSystem.TickMap(map);
         }
     }
 
-    private int ResolveTargetTile(Map map, Direction8Way dir)
+    public InventoryTraderRole GetManualRoleOverride(Pawn pawn)
     {
-        RoadboundMapComponent component = map.GetComponent<RoadboundMapComponent>();
-        if (component != null && component.TryGetConnectedTile(dir, out int linkedTile))
+        if (pawn == null)
         {
-            return linkedTile;
+            return InventoryTraderRole.Auto;
         }
 
-        return MapEdgeUtility.GetNeighborTile(map.Tile, dir);
+        return roleOverrides.TryGetValue(pawn.thingIDNumber, out InventoryTraderRole role) ? role : InventoryTraderRole.Auto;
     }
 
-    private void BeginTransition(Pawn triggerPawn, int targetTile, Direction8Way dir)
+    public void SetManualRoleOverride(Pawn pawn, InventoryTraderRole role)
     {
-        var worldState = Find.World.GetComponent<RoadWorldComponent>();
-        worldState.SetPendingTransition(new RoadTransitionRequest
-        {
-            fromTile = Find.CurrentMap.Tile,
-            targetTile = targetTile,
-            exitDirection = dir,
-            sourceCell = triggerPawn.Position,
-            sourceMapSize = Find.CurrentMap.Size,
-            createdTick = Find.TickManager.TicksGame,
-        });
-
-        var generator = new RoadMapGenerator();
-        generator.Generate(targetTile);
-        FinalizeTravel(generator.GeneratedMap);
-        lastTransitionCell = triggerPawn.Position;
-    }
-
-    private void FinalizeTravel(Map targetMap)
-    {
-        List<Pawn> leavingPawns = Find.Selector.SelectedPawns.Where(p => p.IsColonistPlayerControlled).ToList();
-        if (leavingPawns.Count == 0)
+        if (pawn == null)
         {
             return;
         }
 
-        Pawn leadPawn = leavingPawns[0];
-        Map previousMap = leadPawn.Map;
-        Caravan caravan = CaravanExitMapUtility.ExitMapAndCreateCaravan(
-            leavingPawns,
-            Faction.OfPlayer,
-            previousMap.Tile,
-            Direction8Way.North,
-            targetMap.Tile,
-            sendMessage: false);
+        if (role == InventoryTraderRole.Auto)
+        {
+            roleOverrides.Remove(pawn.thingIDNumber);
+            return;
+        }
 
-        IntVec3 cameraCell;
-        System.Predicate<IntVec3> validator = MapEdgeUtility.GetEntryValidator(targetMap, leadPawn.Position, previousMap.Size, out cameraCell);
-        CaravanEnterMapUtility.Enter(caravan, targetMap, CaravanEnterMode.Edge, extraCellValidator: validator, draftColonists: true);
-        Current.Game.CurrentMap = targetMap;
-        Find.CameraDriver.JumpToCurrentMapLoc(cameraCell);
+        roleOverrides[pawn.thingIDNumber] = role;
     }
+
+    public InventoryTraderRole GetEffectiveRole(Pawn pawn)
+    {
+        InventoryTraderRole manual = GetManualRoleOverride(pawn);
+        return manual == InventoryTraderRole.Auto ? InferRoleFromSkills(pawn) : manual;
+    }
+
+    public InventoryTraderRole InferRoleFromSkills(Pawn pawn)
+    {
+        if (pawn?.skills?.skills == null || pawn.skills.skills.Count == 0)
+        {
+            return InventoryTraderRole.Resources;
+        }
+
+        SkillRecord best = pawn.skills.skills.OrderByDescending(s => s.Level).ThenByDescending(s => s.passion).FirstOrDefault();
+        if (best == null)
+        {
+            return InventoryTraderRole.Resources;
+        }
+
+        string def = best.def.defName;
+        return def switch
+        {
+            "Shooting" => InventoryTraderRole.Weapons,
+            "Melee" => InventoryTraderRole.Weapons,
+            "Cooking" => InventoryTraderRole.Food,
+            "Plants" => InventoryTraderRole.Food,
+            "Animals" => InventoryTraderRole.Food,
+            "Medicine" => InventoryTraderRole.Medicine,
+            "Crafting" => InventoryTraderRole.Apparel,
+            "Artistic" => InventoryTraderRole.Misc,
+            "Construction" => InventoryTraderRole.Resources,
+            "Mining" => InventoryTraderRole.Resources,
+            "Intellectual" => InventoryTraderRole.Medicine,
+            _ => InventoryTraderRole.Resources,
+        };
+    }
+
+    public static RoadboundGameComponent Instance => Current.Game?.GetComponent<RoadboundGameComponent>();
 }

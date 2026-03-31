@@ -1,40 +1,19 @@
-# Roadbound World
+# Morrowind Inventory Logistics
 
-Roadbound World is a RimWorld 1.6 mod project with two big feature lines:
+This RimWorld 1.6 mod project is now focused entirely on two systems:
 
-- road based tile to tile travel with connected roadside encounters
-- a Morrowind inspired replacement for the pawn gear and inventory tab
+- a Morrowind inspired pawn inventory UI
+- large personal colonist inventories that behave more like stockpiles and trader networks
 
-## Included features
+## Current feature goals in this source tree
 
-### Road travel systems
+- darker black and gold Morrowind style inventory windows
+- large inventory icons and an equipped-items strip aligned on the left
+- automatic pickup of nearby haulables into colonist inventories
+- category trader roles with auto defaults from the pawn's best skills
+- pawn to pawn sharing of food, weapons, medicine, and build resources
+- top left resource counter support for items stored in colonist inventories
 
-- a road that runs across the map and connects to neighboring tiles
-- edge travel prompts when pawns reach the connected border
-- roadside POI spawning
-- traveler groups entering from the map edge and crossing the tile
-- hostile carryover records so enemies that leave the map can be met again on the next tile
+## Build
 
-### Morrowind inspired inventory UI
-
-- custom Inventory, Equipment, and Stats tabs
-- paper doll layout with slot mapping
-- left aligned equipped strip under the paper doll
-- tiled grid inventory on the right panel
-- category filtering tabs
-- black and gold Morrowind style framing and slot treatment
-
-## Repository layout
-
-- `About/` contains RimWorld metadata
-- `Textures/UI/Morrowind/` contains the UI art used by the custom tab
-- `1.6/Defs/` contains the world object defs
-- `1.6/Languages/` contains keyed strings
-- `Source/` contains the C# project and code
-- `.github/workflows/build.yml` builds and packages the mod automatically on GitHub Actions
-
-## Honest status
-
-Inside this chat environment I could not generate the compiled DLL because the required binary build toolchain is unavailable here.
-
-What I *did* finish is the full build ready repository, including an automated workflow that compiles the mod and creates a proper install zip in a standard C# environment.
+Use the included GitHub Actions workflow to compile the DLL and package the mod for RimWorld 1.6.

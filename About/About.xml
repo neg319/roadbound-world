@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Roadbound World</name>
+  <name>Morrowind Inventory Logistics</name>
   <author>OpenAI for Johnny Berry</author>
   <packageId>vyberware.roadboundworld</packageId>
   <supportedVersions>
@@ -13,7 +13,5 @@
       <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</downloadUrl>
     </li>
   </modDependencies>
-  <description>Roadbound World adds connected road maps with cross tile travel, roadside POIs, travelers crossing the road, hostile carryover between connected maps, a Morrowind inspired inventory replacement, larger personal pawn inventories, automatic nearby loot stashing into colonist inventories, and broader Morrowind style window skinning.
-
-This package is a build ready source update. Rebuild the DLL through the included GitHub Actions workflow or your local RimWorld 1.6 mod build setup.</description>
+  <description>Morrowind Inventory Logistics replaces the pawn inventory UI with a Morrowind inspired layout and turns colonist personal inventories into large, shared, stockpile like logistics pools. Colonists auto stash nearby haulables into personal inventories, prefer category traders, share food, weapons, medicine, and building resources, and count carried resources in the top left resource display.</description>
 </ModMetaData>

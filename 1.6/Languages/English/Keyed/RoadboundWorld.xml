@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RBW_ModName>Roadbound World</RBW_ModName>
-  <RBW_ShowPrompt>Show next tile prompt</RBW_ShowPrompt>
-  <RBW_MorrowindInventory>Enable Morrowind style inventory UI</RBW_MorrowindInventory>
-  <RBW_GlobalWindows>Skin more windows with the Morrowind theme</RBW_GlobalWindows>
-  <RBW_PersonalStockpileMode>Use personal inventory stockpiles</RBW_PersonalStockpileMode>
-  <RBW_CarryMultiplier>Personal carry multiplier</RBW_CarryMultiplier>
-  <RBW_StockpileRadius>Personal stockpile pickup radius</RBW_StockpileRadius>
-  <RBW_MapSize>Transit map size</RBW_MapSize>
-  <RBW_RoadHalfWidth>Road half width</RBW_RoadHalfWidth>
-  <RBW_PoiCount>POIs per road map</RBW_PoiCount>
-  <RBW_TravelerDays>Traveler spawn interval in days</RBW_TravelerDays>
-  <RBW_PersistDays>Hostile persistence window in days</RBW_PersistDays>
-  <RBW_ConfirmTitle>Continue down the road?</RBW_ConfirmTitle>
-  <RBW_ConfirmBody>You are about to move into the connected neighboring tile.
-
-Destination: {0}</RBW_ConfirmBody>
-  <RBW_ConfirmAccept>Enter next tile</RBW_ConfirmAccept>
-  <RBW_ConfirmCancel>Stay here</RBW_ConfirmCancel>
+  <MIL_ModName>Morrowind Inventory Logistics</MIL_ModName>
+  <MIL_MorrowindInventory>Enable Morrowind style inventory UI</MIL_MorrowindInventory>
+  <MIL_GlobalWindows>Skin large windows with the Morrowind theme</MIL_GlobalWindows>
+  <MIL_PersonalStockpileMode>Use personal inventory stockpiles</MIL_PersonalStockpileMode>
+  <MIL_ShowTradeMessages>Show pawn to pawn trade notices</MIL_ShowTradeMessages>
+  <MIL_AutoShareFood>Auto share food</MIL_AutoShareFood>
+  <MIL_AutoShareWeapons>Auto share weapons</MIL_AutoShareWeapons>
+  <MIL_AutoShareMedicine>Auto share medicine</MIL_AutoShareMedicine>
+  <MIL_CarryMultiplier>Personal carry multiplier</MIL_CarryMultiplier>
+  <MIL_StockpileRadius>Personal stockpile pickup radius</MIL_StockpileRadius>
+  <MIL_TransferBatch>Auto stash batch</MIL_TransferBatch>
+  <MIL_Reset>Reset to defaults</MIL_Reset>
+  <MIL_SettingsBlurb>This version removes the road travel systems and focuses the entire mod on the Morrowind style inventory, stockpile like pawn inventories, trader roles, and automatic resource sharing.</MIL_SettingsBlurb>
 </LanguageData>

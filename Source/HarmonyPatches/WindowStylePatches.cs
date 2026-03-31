@@ -15,6 +15,11 @@ public static class WindowStylePatches
             return true;
         }
 
+        if (rect.width < 180f || rect.height < 110f)
+        {
+            return true;
+        }
+
         MorrowindWindowSkin.DrawWindow(rect);
         return false;
     }
