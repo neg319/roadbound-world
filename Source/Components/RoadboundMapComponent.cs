@@ -77,13 +77,13 @@ public sealed class RoadboundMapComponent : MapComponent
         IntVec3 end = PickEdgeCell(exitDirection);
         paintedRoadCells = RoadPainter.Paint(map, start, end, RoadboundWorldMod.Settings.roadHalfWidth);
         RoadPoiSpawner.SpawnPois(map, paintedRoadCells, RoadboundWorldMod.Settings.poiCount);
-        RestorePersistentHostiles(entryDirection);
+        RestorePersistentHostiles(ToRot4(entryDirection));
 
         nextTravelerTick = Find.TickManager.TicksGame + (int)(RoadboundWorldMod.Settings.travelerIntervalDays * 60000f);
         initialized = true;
     }
 
-    private void RestorePersistentHostiles(Direction8Way incomingDirection)
+    private void RestorePersistentHostiles(Rot4 incomingDirection)
     {
         var records = Find.World.GetComponent<RoadWorldComponent>().ConsumeHostiles(map.Tile, incomingDirection);
         if (records.Count == 0)
@@ -93,8 +93,24 @@ public sealed class RoadboundMapComponent : MapComponent
 
         foreach (PersistentHostileRecord record in records)
         {
-            Pawn pawn = PawnGenerator.GeneratePawn(record.pawnKind, record.faction);
-            IntVec3 spawnCell = CellFinder.RandomClosewalkCellNear(PickEdgeCell(incomingDirection), map, 6);
+            PawnKindDef kindDef = DefDatabase<PawnKindDef>.GetNamedSilentFail(record.kindDefName);
+            Faction faction = null;
+            if (!string.IsNullOrEmpty(record.factionDefName))
+            {
+                FactionDef factionDef = DefDatabase<FactionDef>.GetNamedSilentFail(record.factionDefName);
+                if (factionDef != null)
+                {
+                    faction = Find.FactionManager.FirstFactionOfDef(factionDef);
+                }
+            }
+
+            if (kindDef == null)
+            {
+                continue;
+            }
+
+            Pawn pawn = faction != null ? PawnGenerator.GeneratePawn(kindDef, faction) : PawnGenerator.GeneratePawn(kindDef);
+            IntVec3 spawnCell = CellFinder.RandomClosewalkCellNear(PickEdgeCell(ToDirection8Way(incomingDirection)), map, 6);
             GenSpawn.Spawn(pawn, spawnCell, map);
         }
     }
@@ -113,7 +129,7 @@ public sealed class RoadboundMapComponent : MapComponent
         var group = new PersistentHostileGroup
         {
             tile = MapEdgeUtility.GetNeighborTile(map.Tile, exitDirection),
-            entryDirection = exitDirection,
+            entryDirection = ToRot4(exitDirection).AsInt,
             expiresAtTick = Find.TickManager.TicksGame + (int)(RoadboundWorldMod.Settings.persistentHostileDays * 60000f),
         };
 
@@ -126,10 +142,9 @@ public sealed class RoadboundMapComponent : MapComponent
 
             group.pawns.Add(new PersistentHostileRecord
             {
-                pawnKind = pawn.kindDef,
-                faction = pawn.Faction,
-                sourceLabel = pawn.LabelShortCap,
-                healthFraction = pawn.health.summaryHealth.SummaryHealthPercent,
+                kindDefName = pawn.kindDef.defName,
+                factionDefName = pawn.Faction?.def?.defName ?? string.Empty,
+                count = 1,
             });
 
             pawn.DeSpawn();
@@ -170,6 +185,30 @@ public sealed class RoadboundMapComponent : MapComponent
             Direction8Way.SouthEast => Direction8Way.NorthWest,
             Direction8Way.SouthWest => Direction8Way.NorthEast,
             _ => Direction8Way.South,
+        };
+    }
+
+    private static Rot4 ToRot4(Direction8Way direction)
+    {
+        return direction switch
+        {
+            Direction8Way.North or Direction8Way.NorthEast or Direction8Way.NorthWest => Rot4.North,
+            Direction8Way.South or Direction8Way.SouthEast or Direction8Way.SouthWest => Rot4.South,
+            Direction8Way.East => Rot4.East,
+            Direction8Way.West => Rot4.West,
+            _ => Rot4.North,
+        };
+    }
+
+    private static Direction8Way ToDirection8Way(Rot4 rot)
+    {
+        return rot.AsInt switch
+        {
+            0 => Direction8Way.North,
+            1 => Direction8Way.East,
+            2 => Direction8Way.South,
+            3 => Direction8Way.West,
+            _ => Direction8Way.North,
         };
     }
 }

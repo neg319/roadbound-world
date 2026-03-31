@@ -18,7 +18,7 @@ public static class RoadPoiSpawner
         {
             ThingDefOf.Steel,
             ThingDefOf.WoodLog,
-            ThingDefOf.PackageSurvivalMeal,
+            ThingDefOf.MealSurvivalPack,
             ThingDefOf.ComponentIndustrial,
         };
 
