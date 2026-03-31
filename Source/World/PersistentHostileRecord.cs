@@ -1,20 +1,17 @@
-using RimWorld;
 using Verse;
 
 namespace RoadboundWorld.World;
 
 public sealed class PersistentHostileRecord : IExposable
 {
-    public PawnKindDef pawnKind;
-    public Faction faction;
-    public string sourceLabel;
-    public float healthFraction = 1f;
+    public string kindDefName = "";
+    public string factionDefName = "";
+    public int count = 1;
 
     public void ExposeData()
     {
-        Scribe_Defs.Look(ref pawnKind, nameof(pawnKind));
-        Scribe_References.Look(ref faction, nameof(faction));
-        Scribe_Values.Look(ref sourceLabel, nameof(sourceLabel));
-        Scribe_Values.Look(ref healthFraction, nameof(healthFraction), 1f);
+        Scribe_Values.Look(ref kindDefName, nameof(kindDefName), "");
+        Scribe_Values.Look(ref factionDefName, nameof(factionDefName), "");
+        Scribe_Values.Look(ref count, nameof(count), 1);
     }
 }
