@@ -13,7 +13,7 @@
       <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</downloadUrl>
     </li>
   </modDependencies>
-  <description>Prototype source package for a RimWorld 1.6 exploration mod that adds edge to edge road travel, road POIs, periodic travelers crossing the map, persistent hostiles across connected tiles, and a Morrowind inspired replacement for the pawn gear and inventory tab with tabs, a paper doll, and a tiled pack grid.
+  <description>Roadbound World adds connected road maps with cross tile travel, roadside POIs, travelers crossing the road, hostile carryover between connected maps, a Morrowind inspired inventory replacement, larger personal pawn inventories, automatic nearby loot stashing into colonist inventories, and broader Morrowind style window skinning.
 
-Important: this package is laid out as a proper RimWorld mod project, but the current build environment could not compile the C# assembly. The Source folder is included, but the 1.6/Assemblies folder does not contain a built DLL yet.</description>
+This package is a build ready source update. Rebuild the DLL through the included GitHub Actions workflow or your local RimWorld 1.6 mod build setup.</description>
 </ModMetaData>

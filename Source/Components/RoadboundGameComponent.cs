@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
+using RoadboundWorld.Systems;
 using RoadboundWorld.Utility;
 using RoadboundWorld.World;
 using Verse;
@@ -12,7 +13,9 @@ namespace RoadboundWorld.Components;
 public sealed class RoadboundGameComponent : GameComponent
 {
     private const int CheckInterval = 64;
+    private const int StockpileCheckInterval = 180;
     private int lastCheckTick;
+    private int lastStockpileTick;
     private IntVec3 lastTransitionCell = IntVec3.Invalid;
 
     public RoadboundGameComponent(Game game)
@@ -21,6 +24,8 @@ public sealed class RoadboundGameComponent : GameComponent
 
     public override void GameComponentTick()
     {
+        TryHandlePersonalStockpiles();
+
         if (Current.Game?.CurrentMap == null || !WorldRendererUtility.DrawingMap)
         {
             return;
@@ -39,7 +44,7 @@ public sealed class RoadboundGameComponent : GameComponent
         }
 
         Direction8Way dir = MapEdgeUtility.DirectionFromCenter(pawn.Map, pawn.Position);
-        int targetTile = MapEdgeUtility.GetNeighborTile(pawn.Map.Tile, dir);
+        int targetTile = ResolveTargetTile(pawn.Map, dir);
         if (!MapEdgeUtility.IsWalkableTile(targetTile))
         {
             return;
@@ -59,6 +64,34 @@ public sealed class RoadboundGameComponent : GameComponent
         {
             BeginTransition(pawn, targetTile, dir);
         }
+    }
+
+    private void TryHandlePersonalStockpiles()
+    {
+        if (!RoadboundWorldMod.Settings.personalStockpileMode || Find.TickManager.TicksGame - lastStockpileTick < StockpileCheckInterval)
+        {
+            return;
+        }
+
+        lastStockpileTick = Find.TickManager.TicksGame;
+        foreach (Map map in Find.Maps)
+        {
+            foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
+            {
+                PersonalInventoryStockpileSystem.TryAutoStashNearbyHaulables(pawn);
+            }
+        }
+    }
+
+    private int ResolveTargetTile(Map map, Direction8Way dir)
+    {
+        RoadboundMapComponent component = map.GetComponent<RoadboundMapComponent>();
+        if (component != null && component.TryGetConnectedTile(dir, out int linkedTile))
+        {
+            return linkedTile;
+        }
+
+        return MapEdgeUtility.GetNeighborTile(map.Tile, dir);
     }
 
     private void BeginTransition(Pawn triggerPawn, int targetTile, Direction8Way dir)

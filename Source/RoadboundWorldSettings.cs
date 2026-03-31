@@ -11,6 +11,10 @@ public sealed class RoadboundWorldSettings : ModSettings
     public float travelerIntervalDays = 1.2f;
     public float persistentHostileDays = 1.5f;
     public bool morrowindInventoryUi = true;
+    public bool personalStockpileMode = true;
+    public float personalInventoryCapacityMultiplier = 25f;
+    public int personalStockpileSearchRadius = 10;
+    public bool globalMorrowindWindows = true;
 
     public override void ExposeData()
     {
@@ -21,6 +25,10 @@ public sealed class RoadboundWorldSettings : ModSettings
         Scribe_Values.Look(ref travelerIntervalDays, nameof(travelerIntervalDays), 1.2f);
         Scribe_Values.Look(ref persistentHostileDays, nameof(persistentHostileDays), 1.5f);
         Scribe_Values.Look(ref morrowindInventoryUi, nameof(morrowindInventoryUi), true);
+        Scribe_Values.Look(ref personalStockpileMode, nameof(personalStockpileMode), true);
+        Scribe_Values.Look(ref personalInventoryCapacityMultiplier, nameof(personalInventoryCapacityMultiplier), 25f);
+        Scribe_Values.Look(ref personalStockpileSearchRadius, nameof(personalStockpileSearchRadius), 10);
+        Scribe_Values.Look(ref globalMorrowindWindows, nameof(globalMorrowindWindows), true);
     }
 
     public void Reset()
@@ -32,5 +40,9 @@ public sealed class RoadboundWorldSettings : ModSettings
         travelerIntervalDays = 1.2f;
         persistentHostileDays = 1.5f;
         morrowindInventoryUi = true;
+        personalStockpileMode = true;
+        personalInventoryCapacityMultiplier = 25f;
+        personalStockpileSearchRadius = 10;
+        globalMorrowindWindows = true;
     }
 }

@@ -42,6 +42,17 @@ public static class MorrowindWindowSkin
         }
     }
 
+    public static void DrawEquippedOutline(Rect rect)
+    {
+        Color old = GUI.color;
+        GUI.color = MorrowindUiResources.Gold;
+        GUI.DrawTexture(new Rect(rect.x + 1f, rect.y + 1f, rect.width - 2f, 2f), BaseContent.WhiteTex);
+        GUI.DrawTexture(new Rect(rect.x + 1f, rect.yMax - 3f, rect.width - 2f, 2f), BaseContent.WhiteTex);
+        GUI.DrawTexture(new Rect(rect.x + 1f, rect.y + 1f, 2f, rect.height - 2f), BaseContent.WhiteTex);
+        GUI.DrawTexture(new Rect(rect.xMax - 3f, rect.y + 1f, 2f, rect.height - 2f), BaseContent.WhiteTex);
+        GUI.color = old;
+    }
+
     public static void DrawInsetFill(Rect rect)
     {
         GUI.color = MorrowindUiResources.PanelShade;

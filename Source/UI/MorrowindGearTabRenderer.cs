@@ -16,7 +16,6 @@ public static class MorrowindGearTabRenderer
     private const float LeftPaneWidth = 228f;
     private const float InventoryCellSize = 46f;
     private const float InventoryCellPadding = 4f;
-    private const float EquippedCellSize = 32f;
     private const float PaperdollSlotSize = 34f;
 
     public static void Draw(Rect rect, Pawn pawn)
@@ -120,11 +119,8 @@ public static class MorrowindGearTabRenderer
     {
         MorrowindWindowSkin.DrawPanel(rect);
 
-        Rect paperRect = new(rect.x + 10f, rect.y + 10f, rect.width - 20f, rect.height - 88f);
+        Rect paperRect = new(rect.x + 10f, rect.y + 10f, rect.width - 20f, rect.height - 44f);
         DrawPaperdoll(paperRect, pawn, state);
-
-        Rect equippedStripRect = new(rect.x + 10f, paperRect.yMax + 6f, rect.width - 20f, 36f);
-        DrawEquippedStrip(equippedStripRect, pawn, state);
 
         Rect armorRect = new(rect.x + 10f, rect.yMax - 30f, rect.width - 20f, 22f);
         DrawArmorLine(armorRect, pawn);
@@ -136,44 +132,29 @@ public static class MorrowindGearTabRenderer
         DrawLabelLeft(rect, $"Armor: {armor}", MorrowindUiResources.TextPrimary);
     }
 
-    private static void DrawEquippedStrip(Rect rect, Pawn pawn, MorrowindInventoryState state)
-    {
-        MorrowindWindowSkin.DrawPanel(rect, inset: 3f);
-        List<Thing> equipped = GatherEquippedThings(pawn);
-        float x = rect.x + 4f;
-        for (int i = 0; i < equipped.Count; i++)
-        {
-            Thing thing = equipped[i];
-            MorrowindSelectionSource source = thing is Apparel ? MorrowindSelectionSource.Apparel : MorrowindSelectionSource.Equipment;
-            bool selected = state.selectedThingId == thing.thingIDNumber && state.selectionSource == source;
-            Rect slotRect = new(x, rect.y + 1f, EquippedCellSize, EquippedCellSize);
-            if (slotRect.xMax > rect.xMax - 4f)
-            {
-                break;
-            }
-
-            MorrowindWindowSkin.DrawSlot(slotRect, selected);
-            DrawThingIcon(slotRect.ContractedBy(4f), thing);
-            TooltipHandler.TipRegion(slotRect, thing.LabelCap);
-            if (Widgets.ButtonInvisible(slotRect))
-            {
-                state.Select(thing, source);
-            }
-
-            x += EquippedCellSize + 4f;
-        }
-    }
-
     private static void DrawPaperdoll(Rect rect, Pawn pawn, MorrowindInventoryState state)
     {
         MorrowindWindowSkin.DrawPanel(rect);
         Rect inner = rect.ContractedBy(8f);
         MorrowindWindowSkin.DrawInsetFill(inner);
 
-        Rect silhouetteRect = new(inner.x + 28f, inner.y + 18f, inner.width - 56f, inner.height - 48f);
-        GUI.color = new Color(1f, 1f, 1f, 0.93f);
-        GUI.DrawTexture(silhouetteRect, MorrowindUiResources.PaperdollSilhouette, ScaleMode.ScaleToFit, true);
+        Rect portraitRect = new(inner.x + 14f, inner.y + 18f, inner.width - 28f, inner.height - 50f);
+        Texture portrait = PortraitsCache.Get(
+            pawn,
+            portraitRect.size,
+            Rot4.South,
+            Vector3.zero,
+            1f,
+            true,
+            true,
+            true,
+            true,
+            null,
+            null,
+            false);
+
         GUI.color = Color.white;
+        GUI.DrawTexture(portraitRect, portrait, ScaleMode.ScaleToFit, true);
 
         Dictionary<string, Thing> slots = BuildSlotMap(pawn);
         foreach ((string key, Rect slotRect) in PaperdollSlots(inner))
@@ -202,21 +183,21 @@ public static class MorrowindGearTabRenderer
     private static IEnumerable<(string, Rect)> PaperdollSlots(Rect rect)
     {
         float centerX = rect.x + rect.width * 0.5f;
-        float topY = rect.y + 12f;
-        float midY = rect.y + rect.height * 0.38f;
-        float waistY = rect.y + rect.height * 0.58f;
-        float lowerY = rect.y + rect.height * 0.75f;
+        float topY = rect.y + 10f;
+        float shoulderY = rect.y + rect.height * 0.32f;
+        float waistY = rect.y + rect.height * 0.56f;
+        float lowerY = rect.y + rect.height * 0.79f;
 
         yield return ("Head", new Rect(centerX - PaperdollSlotSize * 0.5f, topY, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Neck", new Rect(centerX - PaperdollSlotSize * 0.5f, topY + 42f, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Main hand", new Rect(rect.x + 10f, midY, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Off hand", new Rect(rect.xMax - PaperdollSlotSize - 10f, midY, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Chest", new Rect(centerX - PaperdollSlotSize * 0.5f, midY + 18f, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Hands", new Rect(rect.x + 10f, waistY, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Neck", new Rect(centerX - PaperdollSlotSize * 0.5f, topY + 38f, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Main hand", new Rect(rect.x + 8f, shoulderY, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Off hand", new Rect(rect.xMax - PaperdollSlotSize - 8f, shoulderY, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Chest", new Rect(centerX - PaperdollSlotSize * 0.5f, shoulderY + 14f, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Hands", new Rect(rect.x + 8f, waistY, PaperdollSlotSize, PaperdollSlotSize));
         yield return ("Belt", new Rect(centerX - PaperdollSlotSize * 0.5f, waistY, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Utility", new Rect(rect.xMax - PaperdollSlotSize - 10f, waistY, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Utility", new Rect(rect.xMax - PaperdollSlotSize - 8f, waistY, PaperdollSlotSize, PaperdollSlotSize));
         yield return ("Legs", new Rect(centerX - PaperdollSlotSize * 0.5f, lowerY, PaperdollSlotSize, PaperdollSlotSize));
-        yield return ("Feet", new Rect(centerX - PaperdollSlotSize * 0.5f, lowerY + 42f, PaperdollSlotSize, PaperdollSlotSize));
+        yield return ("Feet", new Rect(centerX - PaperdollSlotSize * 0.5f, lowerY + 36f, PaperdollSlotSize, PaperdollSlotSize));
     }
 
     private static Dictionary<string, Thing> BuildSlotMap(Pawn pawn)
@@ -272,9 +253,9 @@ public static class MorrowindGearTabRenderer
         Rect categoryRect = new(inner.x, inner.y, inner.width, CategoryTabsHeight);
         DrawCategoryTabs(categoryRect, state);
 
-        List<Thing> inventoryThings = FilterInventoryThings(pawn, state.activeCategory);
+        List<MorrowindInventoryEntry> entries = GatherInventoryEntries(pawn, state.activeCategory);
         Rect gridRect = new(inner.x, categoryRect.yMax + 6f, inner.width, inner.height - CategoryTabsHeight - 20f);
-        DrawInventoryGrid(gridRect, inventoryThings, state, pawn);
+        DrawInventoryGrid(gridRect, entries, state, pawn);
 
         Rect ornamentRect = new(inner.x + 4f, inner.yMax - 8f, inner.width - 8f, 4f);
         DrawBottomRail(ornamentRect);
@@ -287,7 +268,7 @@ public static class MorrowindGearTabRenderer
             (MorrowindItemCategory.All, "All"),
             (MorrowindItemCategory.Weapons, "Weapons"),
             (MorrowindItemCategory.Clothing, "Clothing"),
-            (MorrowindItemCategory.Medicine, "Utility"),
+            (MorrowindItemCategory.Medicine, "Magic"),
             (MorrowindItemCategory.Misc, "Misc"),
         };
 
@@ -307,14 +288,26 @@ public static class MorrowindGearTabRenderer
         }
     }
 
-    private static List<Thing> FilterInventoryThings(Pawn pawn, MorrowindItemCategory category)
+    private static List<MorrowindInventoryEntry> GatherInventoryEntries(Pawn pawn, MorrowindItemCategory category)
     {
-        IEnumerable<Thing> things = pawn.inventory?.innerContainer?.ToList() ?? Enumerable.Empty<Thing>();
-        IEnumerable<Thing> filtered = things.Where(thing => MatchesCategory(thing, category));
-        return filtered
-            .OrderBy(thing => CategorySortIndex(thing))
-            .ThenBy(thing => thing.LabelCap.ToString())
-            .ThenByDescending(thing => thing.stackCount)
+        List<MorrowindInventoryEntry> entries = new();
+        foreach (Thing thing in GatherEquippedThings(pawn).Where(t => MatchesCategory(t, category)))
+        {
+            MorrowindSelectionSource source = thing is Apparel ? MorrowindSelectionSource.Apparel : MorrowindSelectionSource.Equipment;
+            entries.Add(new MorrowindInventoryEntry(thing, source, true));
+        }
+
+        IEnumerable<Thing> inventoryThings = pawn.inventory?.innerContainer?.ToList() ?? Enumerable.Empty<Thing>();
+        foreach (Thing thing in inventoryThings.Where(t => MatchesCategory(t, category)))
+        {
+            entries.Add(new MorrowindInventoryEntry(thing, MorrowindSelectionSource.Inventory, false));
+        }
+
+        return entries
+            .OrderByDescending(entry => entry.equipped)
+            .ThenBy(entry => CategorySortIndex(entry.thing))
+            .ThenBy(entry => entry.thing.LabelCap.ToString())
+            .ThenByDescending(entry => entry.thing.stackCount)
             .ToList();
     }
 
@@ -351,23 +344,29 @@ public static class MorrowindGearTabRenderer
         return 3;
     }
 
-    private static void DrawInventoryGrid(Rect rect, List<Thing> inventoryThings, MorrowindInventoryState state, Pawn pawn)
+    private static void DrawInventoryGrid(Rect rect, List<MorrowindInventoryEntry> entries, MorrowindInventoryState state, Pawn pawn)
     {
         int columns = Mathf.Max(1, Mathf.FloorToInt((rect.width - 4f) / (InventoryCellSize + InventoryCellPadding)));
-        int rows = Mathf.Max(1, Mathf.CeilToInt(inventoryThings.Count / (float)columns));
+        int rows = Mathf.Max(1, Mathf.CeilToInt(entries.Count / (float)columns));
         float viewHeight = Mathf.Max(rect.height, rows * (InventoryCellSize + InventoryCellPadding) + 4f);
         Rect view = new(0f, 0f, rect.width - 16f, viewHeight);
 
         Widgets.BeginScrollView(rect, ref state.inventoryScroll, view);
 
-        for (int index = 0; index < inventoryThings.Count; index++)
+        for (int index = 0; index < entries.Count; index++)
         {
-            Thing thing = inventoryThings[index];
+            MorrowindInventoryEntry entry = entries[index];
+            Thing thing = entry.thing;
             int row = index / columns;
             int col = index % columns;
             Rect cell = new(col * (InventoryCellSize + InventoryCellPadding), row * (InventoryCellSize + InventoryCellPadding), InventoryCellSize, InventoryCellSize);
-            bool selected = state.selectedThingId == thing.thingIDNumber && state.selectionSource == MorrowindSelectionSource.Inventory;
+            bool selected = state.selectedThingId == thing.thingIDNumber && state.selectionSource == entry.source;
             MorrowindWindowSkin.DrawSlot(cell, selected);
+            if (entry.equipped)
+            {
+                MorrowindWindowSkin.DrawEquippedOutline(cell);
+            }
+
             DrawThingIcon(cell.ContractedBy(5f), thing);
 
             if (thing.stackCount > 1)
@@ -379,10 +378,10 @@ public static class MorrowindGearTabRenderer
                 Text.Anchor = TextAnchor.UpperLeft;
             }
 
-            TooltipHandler.TipRegion(cell, thing.LabelCap);
+            TooltipHandler.TipRegion(cell, entry.equipped ? $"[Equipped] {thing.LabelCap}" : thing.LabelCap.ToString());
             if (Widgets.ButtonInvisible(cell))
             {
-                state.Select(thing, MorrowindSelectionSource.Inventory);
+                state.Select(thing, entry.source);
                 if (Event.current != null && Event.current.clickCount > 1)
                 {
                     PerformPrimaryAction(pawn, state);
@@ -566,7 +565,6 @@ public static class MorrowindGearTabRenderer
         }
         GUI.enabled = true;
     }
-
 
     private static bool DrawActionButton(Rect rect, string label)
     {

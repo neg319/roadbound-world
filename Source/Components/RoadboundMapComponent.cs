@@ -12,6 +12,8 @@ public sealed class RoadboundMapComponent : MapComponent
 {
     private bool initialized;
     private int nextTravelerTick;
+    private int backtrackTile = -1;
+    private int forwardTile = -1;
     private Direction8Way entryDirection = Direction8Way.North;
     private Direction8Way exitDirection = Direction8Way.South;
     private List<IntVec3> paintedRoadCells = new();
@@ -25,6 +27,19 @@ public sealed class RoadboundMapComponent : MapComponent
     {
         base.FinalizeInit();
         TryInitializeRoadMap();
+    }
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+        Scribe_Values.Look(ref initialized, nameof(initialized), false);
+        Scribe_Values.Look(ref nextTravelerTick, nameof(nextTravelerTick), 0);
+        Scribe_Values.Look(ref backtrackTile, nameof(backtrackTile), -1);
+        Scribe_Values.Look(ref forwardTile, nameof(forwardTile), -1);
+        Scribe_Values.Look(ref entryDirection, nameof(entryDirection), Direction8Way.North);
+        Scribe_Values.Look(ref exitDirection, nameof(exitDirection), Direction8Way.South);
+        Scribe_Collections.Look(ref paintedRoadCells, nameof(paintedRoadCells), LookMode.Value);
+        Scribe_Collections.Look(ref exportedHostileIds, nameof(exportedHostileIds), LookMode.Value);
     }
 
     public override void MapComponentTick()
@@ -46,6 +61,29 @@ public sealed class RoadboundMapComponent : MapComponent
         }
     }
 
+    public bool TryGetConnectedTile(Direction8Way edgeDirection, out int targetTile)
+    {
+        targetTile = -1;
+        if (!initialized)
+        {
+            return false;
+        }
+
+        if (edgeDirection == entryDirection && backtrackTile >= 0)
+        {
+            targetTile = backtrackTile;
+            return true;
+        }
+
+        if (edgeDirection == exitDirection && forwardTile >= 0)
+        {
+            targetTile = forwardTile;
+            return true;
+        }
+
+        return false;
+    }
+
     private void TryInitializeRoadMap()
     {
         if (initialized || map == null)
@@ -64,13 +102,17 @@ public sealed class RoadboundMapComponent : MapComponent
 
         if (pending != null)
         {
+            backtrackTile = pending.fromTile;
             entryDirection = pending.exitDirection;
             exitDirection = Opposite(pending.exitDirection);
+            forwardTile = MapEdgeUtility.GetNeighborTile(map.Tile, exitDirection);
         }
         else
         {
             entryDirection = Direction8Way.West;
             exitDirection = Direction8Way.East;
+            backtrackTile = MapEdgeUtility.GetNeighborTile(map.Tile, entryDirection);
+            forwardTile = MapEdgeUtility.GetNeighborTile(map.Tile, exitDirection);
         }
 
         IntVec3 start = PickEdgeCell(entryDirection);
@@ -126,9 +168,15 @@ public sealed class RoadboundMapComponent : MapComponent
             return;
         }
 
+        int destinationTile = forwardTile >= 0 ? forwardTile : MapEdgeUtility.GetNeighborTile(map.Tile, exitDirection);
+        if (destinationTile < 0)
+        {
+            return;
+        }
+
         var group = new PersistentHostileGroup
         {
-            tile = MapEdgeUtility.GetNeighborTile(map.Tile, exitDirection),
+            tile = destinationTile,
             entryDirection = ToRot4(exitDirection).AsInt,
             expiresAtTick = Find.TickManager.TicksGame + (int)(RoadboundWorldMod.Settings.persistentHostileDays * 60000f),
         };
@@ -184,7 +232,7 @@ public sealed class RoadboundMapComponent : MapComponent
             Direction8Way.NorthWest => Direction8Way.SouthEast,
             Direction8Way.SouthEast => Direction8Way.NorthWest,
             Direction8Way.SouthWest => Direction8Way.NorthEast,
-            _ => Direction8Way.South,
+            _ => Direction8Way.North,
         };
     }
 
@@ -200,9 +248,9 @@ public sealed class RoadboundMapComponent : MapComponent
         };
     }
 
-    private static Direction8Way ToDirection8Way(Rot4 rot)
+    private static Direction8Way ToDirection8Way(Rot4 direction)
     {
-        return rot.AsInt switch
+        return direction.AsInt switch
         {
             0 => Direction8Way.North,
             1 => Direction8Way.East,
